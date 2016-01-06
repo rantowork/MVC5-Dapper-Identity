@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MtgMatchup.Core.ViewModels
+namespace DapperIdentity.Web.ViewModels
 {
     public class ExternalLoginConfirmationViewModel
     {

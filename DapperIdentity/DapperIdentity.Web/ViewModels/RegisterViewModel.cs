@@ -1,13 +1,18 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MtgMatchup.Core.ViewModels
+namespace DapperIdentity.Web.ViewModels
 {
-    public class ResetPasswordViewModel
+    public class RegisterViewModel
     {
         [Required]
         [EmailAddress]
         [Display(Name = "Email")]
         public string Email { get; set; }
+
+        [Required]
+        [StringLength(30, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 4)]
+        [Display(Name = "Nickname")]
+        public string Nickname { get; set; }
 
         [Required]
         [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
@@ -17,9 +22,7 @@ namespace MtgMatchup.Core.ViewModels
 
         [DataType(DataType.Password)]
         [Display(Name = "Confirm password")]
-        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+        [System.ComponentModel.DataAnnotations.Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
-
-        public string Code { get; set; }
     }
 }

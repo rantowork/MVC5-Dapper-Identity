@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Web.Mvc;
 
-namespace MtgMatchup.Core.ViewModels
+namespace DapperIdentity.Web.ViewModels
 {
     public class SendCodeViewModel
     {
