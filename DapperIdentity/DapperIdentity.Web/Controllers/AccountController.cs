@@ -3,9 +3,9 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using DapperIdentity.Core.Entities;
+using DapperIdentity.Web.Email;
 using Microsoft.AspNet.Identity;
 using Microsoft.Owin.Security;
-using MtgMatchup.Core.ViewModels;
 using ExternalLoginConfirmationViewModel = DapperIdentity.Web.ViewModels.ExternalLoginConfirmationViewModel;
 using ForgotPasswordViewModel = DapperIdentity.Web.ViewModels.ForgotPasswordViewModel;
 using LoginViewModel = DapperIdentity.Web.ViewModels.LoginViewModel;
@@ -144,7 +144,7 @@ namespace DapperIdentity.Web.Controllers
 
             //if we got this far then the token is completely invalid
             ViewBag.MessageTitle = "Invalid Confirmation Token";
-            ViewBag.Message = "The confirmation token is invalid.  If you feel you have received this message in error, please contact tim@spoidagames.com";
+            ViewBag.Message = "The confirmation token is invalid.  If you feel you have received this message in error, please contact [your email]";
             return View();
         }
 
