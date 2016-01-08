@@ -26,11 +26,11 @@ namespace DapperIdentity.Data.Repositories
             }
             catch (TimeoutException ex)
             {
-                throw new Exception(String.Format("{0}.WithConnection() experienced a SQL timeout", GetType().FullName), ex);
+                throw new Exception($"{GetType().FullName}.WithConnection() experienced a SQL timeout", ex);
             }
             catch (SqlException ex)
             {
-                throw new Exception(String.Format("{0}.WithConnection() experienced a SQL exception (not a timeout)", GetType().FullName), ex);
+                throw new Exception($"{GetType().FullName}.WithConnection() experienced a SQL exception (not a timeout)", ex);
             }
         }
     }

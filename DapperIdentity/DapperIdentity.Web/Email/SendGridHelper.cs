@@ -44,7 +44,7 @@ namespace DapperIdentity.Web.Email
             message.AddTo(email);
             message.Subject = "Activate your account";
 
-            var confirmationLink = String.Format("https://localhost/Account/ConfirmationLink?id={0}", confirmationToken);
+            var confirmationLink = $"https://localhost/Account/ConfirmationLink?id={confirmationToken}";
 
             message.Html =
                 "Hello!<br/><br/>Your Account has been created.  Please verify your email address by clicking this link to complete the signup process.<br/><br/>" +
