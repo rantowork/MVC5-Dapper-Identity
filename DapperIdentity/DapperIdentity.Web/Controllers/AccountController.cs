@@ -166,7 +166,7 @@ namespace DapperIdentity.Web.Controllers
             if (ModelState.IsValid)
             {
                 var user = await _userManager.FindByNameAsync(model.Email.TrimEnd());
-                if (user == null || !(await _userManager.IsEmailConfirmedAsync(user.Id)))
+                if (user == null || !await _userManager.IsEmailConfirmedAsync(user.Id))
                 {
                     // Don't reveal that the user does not exist or is not confirmed
                     return View("ForgotPasswordConfirmation");
