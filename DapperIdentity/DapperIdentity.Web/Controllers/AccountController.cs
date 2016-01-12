@@ -46,18 +46,20 @@ namespace DapperIdentity.Web.Controllers
                 var user = await _userManager.FindAsync(model.Email.TrimEnd(), model.Password);
                 if (user != null)
                 {
-                    //check if the account has already had its email confirmed
+                    //Check if the account has already had its email confirmed.  In this example, the account will always be confirmed, but this is here for demonstration purposes.
                     if (!user.IsConfirmed)
                     {
-                        //check to see if the token is greater than 24 hours old
+                        //Check to see if the token is greater than 24 hours old
                         if ((DateTime.UtcNow - user.CreatedDate).TotalDays > 1)
                         {
+                            //If it's expired we can send a new confirmation token.  Otherwise if you prefer some other approach or logic feel free to experiment!
                             await ResendConfirmationToken(user);
                             ModelState.AddModelError("", "Email address has not been confirmed and has expired.  A new confirmation token has been generated and sent to you.");
                             return View(model);
                         }
 
-                        //account hasn't been confirmed but it also hasn't been 24 hours
+                        //account hasn't been confirmed but it also hasn't been 24 hours, inform the user.  This is also a great place to present some way the user can request a new confirmation token
+                        //or provide an update email address so that they can receive a new token if they had made a mistake.
                         ModelState.AddModelError("", "Email address has not been confirmed.  Please check your e-mail!");
                         return View(model);
                     }
@@ -89,13 +91,23 @@ namespace DapperIdentity.Web.Controllers
         {
             if (ModelState.IsValid)
             {
+                //Generate a new confirmation token.  Here we are just storing a Guid as a string, but feel free to use whatever you want (if you use another type, make sure to update the user object
+                //and the user table accordingly).
                 var confirmationToken = Guid.NewGuid().ToString();
-                var user = new User { UserName = model.Email.TrimEnd(), Nickname = model.Nickname.TrimEnd(), IsConfirmed = false, ConfirmationToken = confirmationToken, CreatedDate = DateTime.UtcNow };
+
+                //Create the User object.  If you have customized this beyond this example, make sure you update this to contain your new fields.  
+                //The confirmation token in our example is ultimately for show.  Make sure to modify the RegisterViewModel and the Register view if you have customized the object.
+                var user = new User { UserName = model.Email.TrimEnd(), Nickname = model.Nickname.TrimEnd(), IsConfirmed = true, ConfirmationToken = confirmationToken, CreatedDate = DateTime.UtcNow };
+
+                //Create the user
                 var result = await _userManager.CreateAsync(user, model.Password);
+
+                //If it's successful we log the user in and redirect to the home page
                 if (result.Succeeded)
                 {
-                    await SendGridHelper.SendRegistrationEmail(confirmationToken, model.Email.TrimEnd());
-                    return View("ConfirmationLinkSent");
+                    //send e-mail confirmation here and instead of logging the user in and taking them to the home page, redirect them to some page indicating a confirmation email has been sent to them
+                    await SignInAsync(user, false);
+                    return RedirectToAction("Index", "Home");
                 }
                 AddErrors(result);
             }
@@ -104,11 +116,18 @@ namespace DapperIdentity.Web.Controllers
             return View(model);
         }
 
+        /// <summary>
+        /// This is a rough example of an action result that could exist that is called from a confirmation email.  It takes the encoded ConfirmationToken object, decodes it, performs
+        /// some logic to determine if the account is already confirmed, if the token expired, or if everything is ok.  This can obviously be better, but it is here for example purposes.
+        /// </summary>
+        /// <param name="id">In this example, if you look at EmailConfirmationHelper.DecodeConfirmationToken you will see it takes the encoded id parameter from the URL, decodes it back into
+        /// the ConfirmationToken object and then uses the Email to find the user.  This is important because without this, the UserManager wouldn't have a way to actually find the user.</param>
+        /// <returns></returns>
         [AllowAnonymous]
         public async Task<ActionResult> ConfirmationLink(string id)
         {
             //decode the confirmation token
-            var token = SendGridHelper.DecodeConfirmationToken(id);
+            var token = EmailConfirmationHelper.DecodeConfirmationToken(id);
 
             //find the user based on the email address
             var user = await _userManager.FindByNameAsync(token.Email);
@@ -171,13 +190,6 @@ namespace DapperIdentity.Web.Controllers
                     // Don't reveal that the user does not exist or is not confirmed
                     return View("ForgotPasswordConfirmation");
                 }
-
-                // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=320771
-                // Send an email with this link
-                // string code = await UserManager.GeneratePasswordResetTokenAsync(user.Id);
-                // var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);		
-                // await UserManager.SendEmailAsync(user.Id, "Reset Password", "Please reset your password by clicking <a href=\"" + callbackUrl + "\">here</a>");
-                // return RedirectToAction("ForgotPasswordConfirmation", "Account");
             }
 
             // If we got this far, something failed, redisplay form
@@ -268,7 +280,14 @@ namespace DapperIdentity.Web.Controllers
             return View("ExternalLoginConfirmation", new ExternalLoginConfirmationViewModel { Email = loginInfo.Email });
         }
 
-        //
+        /// <summary>
+        /// If you choose to implement Google, Facebook or Twitter auth, you will need to make some slight changes to ExternalLoginConfirmationViewModel, this action and
+        /// ExternalLoginConfirmation.cshtml to account  for changes to the User object including any information you want to collect.  You can use the form to gather this information
+        /// or if you feel that some of this information is available to you from the source location (such as from Google) you can gather this information from claims.
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="returnUrl"></param>
+        /// <returns></returns>
         // POST: /Account/ExternalLoginConfirmation
         [HttpPost]
         [AllowAnonymous]
@@ -288,6 +307,7 @@ namespace DapperIdentity.Web.Controllers
                 {
                     return View("ExternalLoginFailure");
                 }
+                //here we can either use information we gathered with claims that will be contained in the info object, or we can use the data from the form - both is available to us.
                 var user = new User { UserName = model.Email.TrimEnd(), Nickname = model.Nickname.TrimEnd(), CreatedDate = DateTime.UtcNow, IsConfirmed = true };
                 var result = await _userManager.CreateAsync(user);
                 if (result.Succeeded)
@@ -331,6 +351,11 @@ namespace DapperIdentity.Web.Controllers
             AuthenticationManager.SignIn(new AuthenticationProperties() { IsPersistent = isPersistent }, identity);
         }
 
+        /// <summary>
+        /// This method generates a new confirmation token, updates the stored confirmation token and then sends a new confirmation email to the user.
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         private async Task ResendConfirmationToken(User user)
         {
             //create a new confirmation token
@@ -342,7 +367,7 @@ namespace DapperIdentity.Web.Controllers
             await _userManager.UpdateAsync(user);
 
             //send the new confirmation link to the user
-            await SendGridHelper.SendRegistrationEmail(confirmationToken, user.UserName);
+            //await EmailConfirmationHelper.SendRegistrationEmail(confirmationToken, user.UserName);
         }
 
         protected override void Dispose(bool disposing)
