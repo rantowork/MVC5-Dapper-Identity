@@ -21,7 +21,7 @@ namespace DapperIdentity.Data.Repositories
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="getData">Delegate that matches a method that takes an argument of type IDbConnection and returns a Task of type T</param>
-        /// <returns>Task of type T that will be used to get the specific data we need for our custom UserManager</returns>
+        /// <returns>Task of type T - we'll be using this to build and execute our query</returns>
         protected async Task<T> WithConnection<T>(Func<IDbConnection, Task<T>> getData)
         {
             try
