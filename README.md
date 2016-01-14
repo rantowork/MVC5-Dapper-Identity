@@ -19,7 +19,7 @@ This solution is intended to be used as a learning reference or for starting a f
 6.  Build the solution.  The NuGet packages for the solution should be downloaded at this time.
 7.  Hit F5 and test the site out.
 
-##Customizing the User Object
+##Customizing the User Account
 
 The user object for this example has a couple of custom fields out the gate but you may be interested in adding more.  When creating the user object you must implement the IUser interface which, by default, requires a string id and string UserName field. An int id can be used in place of it but requires extensive customization of each implemented interface, the UserRepository and the database.
 
@@ -43,21 +43,12 @@ In this solution the custom fields include Nickname, IsConfirmed, ConfirmationTo
 
 If you do change the User object you will be required to make changes to the following methods to account for the change.
 
-######DapperIdentity.Data.Repositories.UserRepository
-* CreateAsync - update the INSERT query
-* UpdateAsync - update the UPDATE query
-
-######Solution Database
-* The User table should be updated with a column with the appropriate data type for the new field
-
-######DapperIdentity.Web.Controllers.AccountController
-* Register - the post action needs to account for the field when instantiating the User object before calling CreateAsync
-
-######DapperIdentity.Web.ViewModels.RegisterViewModel
-* If the data you are trying to collect is from the user at the time of registration, make sure to update the ViewModel for use with the Register view.
-
-######DapperIdentity.Web.ViewModels.ExternalLoginConfirmationViewModel
-* The ExternalLoginConfirmationViewModel is used when collecting additional information about the user if you enable registration with third party systems such as Google
-
-######Register.cshtml
-* Finally after updating the the register and external login confirmation view models, you should update the view to collect this information.
+Location | Change
+-------- | --------
+DapperIdentity.Data.Repositories.UserRepository.CreateAsync | Modify the UPDATE query
+DapperIdentity.Data.Repositories.UserRepository.UpdateAsync | Modify the UPDATE query
+DapperIdentity.Web.Controllers.AccountController.Register | The HttpPost action needs to account for the field when instantiating the User object before calling CreateAsync
+DapperIdentity.Web.ViewModels.RegisterViewModel | If the data you are trying to collect is from the user at the time of registration, make sure to update the ViewModel for use with the Register view
+DapperIdentity.Web.ViewModels.ExternalLoginConfirmationViewModel | The ExternalLoginConfirmationViewModel is used when collecting additional information about the user if you enable registration with third party systems such as Google
+Register.cshtml | Finally after updating the the register and external login confirmation view models, you should update the view to collect this information
+User Database Table | Should be updated with a column with the appropriate data type for the new field
