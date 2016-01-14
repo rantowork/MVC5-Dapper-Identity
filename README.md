@@ -52,3 +52,33 @@ DapperIdentity.Web.ViewModels.RegisterViewModel | If the data you are trying to 
 DapperIdentity.Web.ViewModels.ExternalLoginConfirmationViewModel | The ExternalLoginConfirmationViewModel is used when collecting additional information about the user if you enable registration with third party systems such as Google
 Register.cshtml | Finally after updating the the register and external login confirmation view models, you should update the view to collect this information
 User Database Table | Should be updated with a column with the appropriate data type for the new field
+
+##Additional References
+
+* [This guide](http://www.asp.net/mvc/overview/security/create-an-aspnet-mvc-5-app-with-facebook-and-google-oauth2-and-openid-sign-on) on www.asp.net provides a good introduction to adding support for Google, Facebook and Twitter.  Simply updating the Startup.Auth class will let you use them for authorization without additional changes to the application.
+
+```
+app.UseGoogleAuthentication(
+         clientId: "000000000000000.apps.googleusercontent.com",
+         clientSecret: "000000000000000");
+         
+```
+
+* Throughout the application most methods have XML Documentation Comments applied to them.  In most cases they are for practical purposes, but in some cases they are for potential enhancements to the solution.  For example:
+
+```
+        /// <summary>
+        /// This is a rough example of an action result that could exist that is called from a confirmation email.  It takes the encoded ConfirmationToken object, decodes it, performs
+        /// some logic to determine if the account is already confirmed, if the token expired, or if everything is ok.  This can obviously be better, but it is here for example purposes.
+        /// </summary>
+        /// <param name="id">In this example, if you look at EmailConfirmationHelper.DecodeConfirmationToken you will see it takes the encoded id parameter from the URL, decodes it back into
+        /// the ConfirmationToken object and then uses the Email to find the user.  This is important because without this, the UserManager wouldn't have a way to actually find the user.</param>
+        /// <returns></returns>
+        [AllowAnonymous]
+        public async Task<ActionResult> ConfirmationLink(string id)
+```
+
+##Tools Used in This Project
+
+* [Dapper Dot Net](https://github.com/StackExchange/dapper-dot-net) of course!
+* [Ninject](http://www.ninject.org/) for dependency injection.
