@@ -24,7 +24,7 @@ This solution is intended to be used as a learning reference or for starting a f
 The user object for this example has a couple of custom fields out the gate but you may be interested in adding more.  When creating the user object you must implement the IUser interface which, by default, requires a string id and string UserName field. An int id can be used in place of it but requires extensive customization of each implemented interface, the UserRepository and the database.
 
 ```
-public class User : IUser
+    public class User : IUser
     {
         public string Id { get; set; }
         public string UserName { get; set; }
@@ -95,7 +95,7 @@ This is mostly wired up in the application already so you will just need to modi
 Here is an example using SendGrid
 
 ```
-public static async Task SendRegistrationEmail(string token, string email)
+        public static async Task SendRegistrationEmail(string token, string email)
         {
             var message = new SendGridMessage
             {
