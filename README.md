@@ -83,8 +83,8 @@ app.UseGoogleAuthentication(
 
 Here are some suggestion on what you can improve next.  These are not required for the solution to work but could provide good learning opportunities.
 
-######Implement the e-mail confirmation
-This is mostly wired up in the application already.  
+#####Implement the e-mail confirmation
+This is mostly wired up in the application already so you will just need to modify the SendRegistrationEmail in DapperIdentity.Web.Email.EmailConfirmationHelper.cs.
 ```
         //public static async Task SendRegistrationEmail(string token, string email)
         //{
